@@ -1,6 +1,6 @@
 import type { Product, ChatMessage, ChatResponse } from '../types';
 
-// Use environment variable if it exists, otherwise default to localhost
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 export const shopApi = {
