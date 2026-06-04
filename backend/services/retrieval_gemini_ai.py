@@ -17,7 +17,7 @@ client = AsyncOpenAI(
 )
 
 
-MODEL_NAME = "llama-3.3-70b"
+MODEL_NAME = "gpt-oss-120b"
 MAX_TOP_K = 3
 
 SYSTEM_MESSAGE = (
