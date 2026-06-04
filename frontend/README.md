@@ -1,5 +1,7 @@
 # 👟 AI Shop Assistant Bot
 
+# live https://mstoreec.vercel.app
+
 A full-stack, AI-powered e-commerce chat assistant. This application allows users to search, filter, and discover products (specifically sneakers) using natural language conversational AI.
 
 The frontend is a lightweight React/Vite SPA, and the backend is a FastAPI service powered by LangChain and Google's Gemini models for retrieval-augmented generation (RAG) against a MySQL product catalog.

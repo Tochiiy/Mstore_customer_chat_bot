@@ -125,7 +125,7 @@ function App() {
                       </button>
                     </div>
                     <h3 className="text-sm font-semibold text-slate-900 truncate">{product.name}</h3>
-                    <p className="text-sm font-bold text-cyan-500">SAR {product.price.toLocaleString()}</p>
+                    <p className="text-sm font-bold text-cyan-500">${product.price.toLocaleString()}</p>
                   </div>
                 </div>
               ))

@@ -1,19 +1,23 @@
 import os
 from dotenv import load_dotenv
-from google import genai
-from google.genai import types
+from openai import AsyncOpenAI
 from backend.services.vector_store import vector_store
 
 load_dotenv()
 
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-if not GOOGLE_API_KEY:
-    raise ValueError("CRITICAL ERROR: GOOGLE_API_KEY is missing from environment setup.")
+CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY")
+if not CEREBRAS_API_KEY:
+    raise ValueError("CRITICAL ERROR: CEREBRAS_API_KEY is missing from environment setup.")
 
-client = genai.Client(api_key=GOOGLE_API_KEY)
 
-MODEL_NAME = "gemini-2.0-flash"
+client = AsyncOpenAI(
+    base_url="https://api.cerebras.ai/v1",
+    api_key=CEREBRAS_API_KEY
+)
+
+
+MODEL_NAME = "llama3.1-8b"
 MAX_TOP_K = 3
 
 SYSTEM_MESSAGE = (
@@ -32,6 +36,7 @@ SYSTEM_MESSAGE = (
 async def get_relevant_context(query: str) -> str:
     """
     Asynchronously queries the vector database and formats all matching records.
+    Uses your existing Gemini embedding configuration inside vector_store.
     """
     try:
         results = await vector_store.asimilarity_search(query, k=MAX_TOP_K)
@@ -61,7 +66,8 @@ async def get_relevant_context(query: str) -> str:
 
 async def generate_response(query: str, history: list = None) -> tuple[str, list]:
     """
-    Generates an optimized response asynchronously, preserving state history natively.
+    Generates an ultra-low latency response asynchronously using Cerebras inference,
+    preserving chat history state natively.
     """
     if history is None:
         history = []
@@ -74,27 +80,36 @@ async def generate_response(query: str, history: list = None) -> tuple[str, list
         history.append({"role": "assistant", "content": fallback_msg})
         return fallback_msg, history
 
-    prompt = f"{SYSTEM_MESSAGE}\n\nContext:\n{context}\n\nUser Query: {query}\n\nAnswer:"
+   
+    messages = [
+        {"role": "system", "content": SYSTEM_MESSAGE},
+    ]
+    
+    for message in history:
+        messages.append({"role": message.get("role"), "content": message.get("content")})
+        
+    
+    current_prompt = f"Context:\n{context}\n\nUser Query: {query}"
+    messages.append({"role": "user", "content": current_prompt})
 
     try:
-        # Call the new asynchronous client endpoint with the updated config types
-        response = await client.aio.models.generate_content(
+       
+        response = await client.chat.completions.create(
             model=MODEL_NAME,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=0.7,
-                max_output_tokens=500
-            )
+            messages=messages,
+            temperature=0.7,
+            max_tokens=500
         )
         
-        final_text = response.text
+        final_text = response.choices[0].message.content
 
+      
         history.append({"role": "user", "content": query})
         history.append({"role": "assistant", "content": final_text})
         
         return final_text, history
 
     except Exception as e:
-        print(f"API Error during Gemini inference execution: {str(e)}")
+        print(f"API Error during Cerebras inference execution: {str(e)}")
         error_msg = "I encountered an error retrieving product details. Please try again shortly."
         return error_msg, history

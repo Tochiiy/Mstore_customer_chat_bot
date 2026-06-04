@@ -2,7 +2,6 @@ import os
 import mysql.connector
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 def get_db_conn():
@@ -16,7 +15,8 @@ def get_db_conn():
             user=os.getenv("DB_USER"),      
             password=os.getenv("DB_PASSWORD"),
             database=os.getenv("DB_NAME"),
-            port=int(os.getenv("DB_PORT", 3306))
+            port=int(os.getenv("DB_PORT", 18925)), # Updated to Aiven's default port
+            ssl_disabled=False # CRITICAL: Tells the backend to use encryption
         )
         print("[*] Successfully connected to MySQL database.")
         return connection
