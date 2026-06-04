@@ -17,11 +17,11 @@ client = AsyncOpenAI(
 )
 
 
-MODEL_NAME = "llama3.1-8b"
+MODEL_NAME = "llama-3.3-70b"
 MAX_TOP_K = 3
 
 SYSTEM_MESSAGE = (
-    "You are a helpful and professional shopping assistant for our e-commerce store.\n"
+    "You are a helpful, conversational and professional shopping assistant for our e-commerce store.\n"
     "Your primary goal is to help users find accurate information about our products, "
     "including specific details, availability, and personalized recommendations based on their preferences.\n\n"
     "CRITICAL RULES:\n"
